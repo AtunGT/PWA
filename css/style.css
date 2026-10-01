@@ -1,0 +1,137 @@
+:root {
+    --bg: #0D0D1A;
+    --surface: #141428;
+    --panel: #1A1A35;
+    --accent: #4F46E5;
+    --accent2: #7C3AED;
+    --highlight: #06D6A0;
+    --text: #E2E8F0;
+    --danger: #EF4444;
+}
+
+body {
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+header {
+    background-color: var(--accent);
+    padding: 1rem 2rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+header p {
+    margin: 0.5rem 0 0 0;
+    color: #C7D2FE;
+}
+
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+section {
+    background-color: var(--surface);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--panel);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: inline-block;
+    width: 200px;
+}
+
+input {
+    background-color: var(--panel);
+    border: 1px solid #2A2A50;
+    color: var(--text);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+button {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 1rem;
+    transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+    background-color: var(--accent2);
+}
+
+button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+#cancel-btn {
+    background-color: var(--danger);
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background-color: var(--panel);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: var(--highlight);
+    transition: width 0.1s linear;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(5, 1fr);
+    gap: 2px;
+    background-color: #2A2A50;
+    border: 1px solid #2A2A50;
+}
+
+.schedule-cell, .schedule-header {
+    background-color: var(--surface);
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.schedule-header {
+    background-color: var(--panel);
+    font-weight: bold;
+}
+
+.schedule-cell.filled {
+    background-color: var(--accent2);
+    color: white;
+    border-radius: 2px;
+}
+
+.group-title {
+    margin-top: 2rem;
+    color: var(--highlight);
+}
