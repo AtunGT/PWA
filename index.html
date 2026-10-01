@@ -3,54 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unihorario Web - GA Scheduler</title>
+    <title>UNIHORARIO - Algoritmos Genéticos para Horarios Académicos</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
-        <h1>⬡ UNIHORARIO Web</h1>
+        <h1>⬡ UNIHORARIO</h1>
         <p>Sistema Inteligente · Algoritmos Genéticos · Horarios Académicos</p>
     </header>
 
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab-config">⚙ Config</button>
+        <button class="tab-btn" data-tab="tab-run">▶ Ejecutar</button>
+        <button class="tab-btn" data-tab="tab-results">◈ Resultados</button>
+        <button class="tab-btn" data-tab="tab-graph">∿ Convergencia</button>
+    </div>
+
     <main>
-        <section id="config-section">
-            <h2>Configuración</h2>
-            <div class="form-group">
-                <label>Generaciones:</label>
-                <input type="number" id="gen-count" value="100">
+        <!-- TAB CONFIG -->
+        <section id="tab-config" class="tab-content active">
+            <div class="config-grid">
+                <!-- Materias -->
+                <div class="panel">
+                    <h3>📚 Materias</h3>
+                    <div class="table-container">
+                        <table id="subjects-table">
+                            <thead>
+                                <tr><th>ID</th><th>Nombre</th><th>Hrs/Sem</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="subj-name" placeholder="Nombre">
+                        <input type="number" id="subj-hrs" placeholder="Horas" style="width: 70px;">
+                        <button id="btn-add-subj" class="btn-highlight">+ Agregar</button>
+                        <button id="btn-del-subj" class="btn-danger">✕ Quitar</button>
+                    </div>
+                </div>
+
+                <!-- Grupos -->
+                <div class="panel">
+                    <h3>👥 Grupos</h3>
+                    <div class="table-container">
+                        <table id="groups-table">
+                            <thead>
+                                <tr><th>ID</th><th>Nombre</th><th>Sem</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="group-id" placeholder="ID (ej. 8A)" style="width: 70px;">
+                        <input type="text" id="group-name" placeholder="Nombre">
+                        <button id="btn-add-group" class="btn-highlight">+ Agregar</button>
+                        <button id="btn-del-group" class="btn-danger">✕ Quitar</button>
+                    </div>
+                </div>
+
+                <!-- Profesores -->
+                <div class="panel full-width">
+                    <h3>👨‍🏫 Personal Académico</h3>
+                    <div class="table-container">
+                        <table id="profs-table">
+                            <thead>
+                                <tr><th>ID</th><th>Nombre</th><th>Materia</th><th>Bloqueados</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="form-row">
+                        <button id="btn-auto-assign" class="btn-accent">🔄 Asignar Todas las Materias a Grupos</button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Tamaño de Población:</label>
-                <input type="number" id="pop-size" value="50">
-            </div>
-            <button id="start-btn">Iniciar Optimización</button>
-            <button id="cancel-btn" disabled>Cancelar</button>
         </section>
 
-        <section id="progress-section">
-            <h2>Progreso</h2>
-            <div class="progress-bar-container">
-                <div id="progress-bar"></div>
+        <!-- TAB EJECUTAR -->
+        <section id="tab-run" class="tab-content">
+            <div class="panel" style="max-width: 600px; margin: 0 auto;">
+                <h3>Configuración del Algoritmo</h3>
+                <div class="form-group">
+                    <label>Generaciones:</label>
+                    <input type="number" id="gen-count" value="300">
+                </div>
+                <div class="form-group">
+                    <label>Tamaño de Población:</label>
+                    <input type="number" id="pop-size" value="100">
+                </div>
+                <div class="form-row" style="justify-content: center; margin-top: 20px;">
+                    <button id="start-btn" class="btn-accent" style="font-size: 1.1em; padding: 10px 30px;">▶ Iniciar Optimización</button>
+                    <button id="cancel-btn" class="btn-danger" disabled>✕ Cancelar</button>
+                </div>
+                
+                <h3 style="margin-top: 40px;">Progreso</h3>
+                <div class="progress-bar-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <p id="status-text">Listo para iniciar...</p>
+                    <p id="fitness-text">Mejor Fitness: 0</p>
+                </div>
             </div>
-            <p id="status-text">Listo para iniciar...</p>
-            <p id="fitness-text">Mejor Fitness: 0</p>
         </section>
 
-        <section id="results-section">
-            <h2>Resultados (Mejor Horario)</h2>
-            <div id="schedule-container"></div>
+        <!-- TAB RESULTADOS -->
+        <section id="tab-results" class="tab-content">
+            <div id="schedule-container">
+                <p style="text-align: center; color: var(--muted);">Ejecuta el algoritmo para ver los resultados aquí.</p>
+            </div>
+        </section>
+
+        <!-- TAB CONVERGENCIA -->
+        <section id="tab-graph" class="tab-content">
+            <div class="panel">
+                <h3>Historial de Convergencia (Fitness)</h3>
+                <canvas id="convergence-chart" width="800" height="400" style="width: 100%; max-width: 800px; margin: 0 auto; display: block; background: var(--surface); border: 1px solid var(--border);"></canvas>
+            </div>
         </section>
     </main>
 
     <script src="js/app.js"></script>
     <script>
-        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    console.log('ServiceWorker registration successful with scope: ', reg.scope);
-                }).catch(err => {
-                    console.error('ServiceWorker registration failed: ', err);
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    console.error('ServiceWorker error: ', err);
                 });
             });
         }

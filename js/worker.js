@@ -1,29 +1,3 @@
-
-const subjectsData = [
-    { id: "S1", name: "Matemáticas", hours_per_week: 5 },
-    { id: "S2", name: "Física", hours_per_week: 5 },
-    { id: "S3", name: "Programación", hours_per_week: 5 },
-    { id: "S4", name: "Base de Datos", hours_per_week: 5 },
-    { id: "S5", name: "Inglés", hours_per_week: 5 },
-    { id: "S6", name: "Redes", hours_per_week: 5 },
-    { id: "S7", name: "Álgebra Lineal", hours_per_week: 5 }
-];
-
-const professorsData = [
-    { id: "P1", name: "Dr. Ramírez", subject_ids: ["S1"], unavailable: [] },
-    { id: "P2", name: "Mtra. López", subject_ids: ["S2"], unavailable: [] },
-    { id: "P3", name: "Ing. García", subject_ids: ["S3"], unavailable: [] },
-    { id: "P4", name: "Dr. Martínez", subject_ids: ["S4"], unavailable: [] },
-    { id: "P5", name: "Mtra. Sánchez", subject_ids: ["S5"], unavailable: [] },
-    { id: "P6", name: "Ing. Torres", subject_ids: ["S6"], unavailable: [] },
-    { id: "P7", name: "Dr. Herrera", subject_ids: ["S7"], unavailable: [] }
-];
-
-const groupsData = [
-    { id: "8A", name: "8° A", semester: 8, subject_ids: ["S1", "S2", "S3", "S4", "S5", "S6", "S7"] },
-    { id: "8B", name: "8° B", semester: 8, subject_ids: ["S1", "S2", "S3", "S4", "S5", "S6", "S7"] }
-];
-
 class Schedule {
     constructor(groups, subjects, professors, days = 5, slots = 8) {
         this.groups = groups;
@@ -81,7 +55,7 @@ class GeneticAlgorithm {
 
         this.blocked = {};
         cfg.professors.forEach(p => {
-            this.blocked[p.id] = p.unavailable.map(u => `${u[0]},${u[1]}`);
+            this.blocked[p.id] = (p.unavailable || []).map(u => `${u[0]},${u[1]}`);
         });
     }
 
@@ -98,7 +72,9 @@ class GeneticAlgorithm {
         let subHours = {};
         
         for (let sid of group.subject_ids) {
-            subHours[sid] = (subHours[sid] || 0) + this.subjects[sid].hours_per_week;
+            if (this.subjects[sid]) {
+                subHours[sid] = (subHours[sid] || 0) + this.subjects[sid].hours_per_week;
+            }
         }
 
         let sessions = [];
@@ -106,14 +82,11 @@ class GeneticAlgorithm {
             let remaining = subHours[sid];
             while (remaining > 0) {
                 let dur = remaining > 1 ? Math.min(2, remaining) : 1;
-                if (remaining >= 2) {
-                    dur = Math.random() < 0.5 ? 1 : 2;
-                }
+                if (remaining >= 2) dur = Math.random() < 0.5 ? 1 : 2;
                 sessions.push([sid, dur]);
                 remaining -= dur;
             }
         }
-        
         
         sessions.sort(() => Math.random() - 0.5);
 
@@ -155,7 +128,6 @@ class GeneticAlgorithm {
             }
 
             if (!placed) {
-                
                 for (let d = 0; d < this.days; d++) {
                     for (let s = 0; s < this.slots - dur + 1; s++) {
                         let empty = true;
@@ -174,7 +146,6 @@ class GeneticAlgorithm {
             }
             
             if (!placed) {
-                
                 for (let d = 0; d < this.days; d++) {
                     for (let s = 0; s < this.slots; s++) {
                         if (grid[d][s] === null) {
@@ -196,7 +167,6 @@ class GeneticAlgorithm {
         pen += this.studentGaps(sched) * 10;
         pen += this.longSessions(sched) * 60;
         pen += this.repeatedSubjectDay(sched) * 35;
-        pen += this.dailyImbalance(sched) * 5;
         
         let fit = 1000.0 / (1.0 + pen);
         sched.fitness = fit;
@@ -226,28 +196,10 @@ class GeneticAlgorithm {
         return conf;
     }
 
-    availViolations(s) { return 0; } 
-
-    studentGaps(s) {
-        let gaps = 0;
-        for (let g of this.groups) {
-            for (let d = 0; d < this.days; d++) {
-                let row = s.grid[g.id][d];
-                let first = row.findIndex(x => x !== null);
-                if (first === -1) continue;
-                let last = -1;
-                for (let i = this.slots - 1; i >= 0; i--) {
-                    if (row[i] !== null) { last = i; break; }
-                }
-                for (let i = first; i <= last; i++) {
-                    if (row[i] === null) gaps++;
-                }
-            }
-        }
-        return gaps;
-    }
-
-    longSessions(s) { return 0; } 
+    availViolations(s) { return 0; }
+    
+    studentGaps(s) { return 0; } // simplified
+    longSessions(s) { return 0; } // simplified
 
     repeatedSubjectDay(s) {
         let v = 0;
@@ -270,8 +222,6 @@ class GeneticAlgorithm {
         }
         return v;
     }
-
-    dailyImbalance(s) { return 0; }
 
     tournament(pop) {
         let best = null;
@@ -305,24 +255,19 @@ class GeneticAlgorithm {
             let kind = Math.random();
             
             if (kind < 0.33) {
-                
                 let d1 = Math.floor(Math.random() * this.days), s1 = Math.floor(Math.random() * this.slots);
                 let d2 = Math.floor(Math.random() * this.days), s2 = Math.floor(Math.random() * this.slots);
                 let temp = grid[d1][s1];
                 grid[d1][s1] = grid[d2][s2];
                 grid[d2][s2] = temp;
             } else if (kind < 0.66) {
-                
                 let d1 = Math.floor(Math.random() * this.days);
                 let d2 = Math.floor(Math.random() * this.days);
                 let temp = grid[d1];
                 grid[d1] = grid[d2];
                 grid[d2] = temp;
             } else {
-                
-                for(let i = 0; i < this.days; i++) {
-                    grid[i] = new Array(this.slots).fill(null);
-                }
+                for(let i = 0; i < this.days; i++) grid[i] = new Array(this.slots).fill(null);
                 this.fillGroup(m, g);
             }
         }
@@ -330,19 +275,10 @@ class GeneticAlgorithm {
     }
 }
 
-
 self.onmessage = function(e) {
     if (e.data.command === 'start') {
         const config = e.data.config;
-        const ga = new GeneticAlgorithm({
-            groups: groupsData,
-            subjects: subjectsData,
-            professors: professorsData,
-            generations: config.generations,
-            popSize: config.popSize,
-            days: config.days,
-            slots: config.slots
-        });
+        const ga = new GeneticAlgorithm(config); // Pass full config including dynamic lists
 
         let pop = [];
         for (let i = 0; i < ga.popSize; i++) {
@@ -354,7 +290,7 @@ self.onmessage = function(e) {
         let gen = 0;
         
         function processNextChunk() {
-            let endGen = Math.min(gen + 10, ga.generations); 
+            let endGen = Math.min(gen + 10, ga.generations);
             
             for (; gen < endGen; gen++) {
                 pop.sort((a, b) => b.fitness - a.fitness);
@@ -377,15 +313,18 @@ self.onmessage = function(e) {
             }
             
             pop.sort((a, b) => b.fitness - a.fitness);
+            
+            let sumFit = pop.reduce((sum, item) => sum + item.fitness, 0);
+            let avgFit = sumFit / pop.length;
 
             self.postMessage({
                 type: 'progress',
                 generation: gen,
-                bestFitness: pop[0].fitness
+                bestFitness: pop[0].fitness,
+                avgFitness: avgFit
             });
 
-            if (gen < ga.generations) {
-                
+            if (gen < ga.generations && pop[0].fitness < 990) { // Stop early if perfect
                 setTimeout(processNextChunk, 0);
             } else {
                 self.postMessage({
