@@ -324,7 +324,7 @@ self.onmessage = function(e) {
                 avgFitness: avgFit
             });
 
-            if (gen < ga.generations && pop[0].fitness < 990) { // Stop early if perfect
+            if (gen < ga.generations) {
                 setTimeout(processNextChunk, 0);
             } else {
                 self.postMessage({

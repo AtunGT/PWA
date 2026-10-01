@@ -164,11 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
             ctx.beginPath();
-            data.forEach((val, i) => {
-                const x = pad + (i / Math.max(1, steps - 1)) * (w - 2*pad);
-                const y = h - pad - (val / maxFit) * (h - 2*pad);
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
+            if (steps === 1) {
+                const y = h - pad - (data[0] / maxFit) * (h - 2*pad);
+                ctx.moveTo(pad, y);
+                ctx.lineTo(w - pad, y);
+            } else {
+                data.forEach((val, i) => {
+                    const x = pad + (i / (steps - 1)) * (w - 2*pad);
+                    const y = h - pad - (val / maxFit) * (h - 2*pad);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+            }
             ctx.stroke();
         }
 
