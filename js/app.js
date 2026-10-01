@@ -129,15 +129,36 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (convergenceData.bests.length === 0) return;
         
-        const pad = 40;
+        const pad = 60;
         const maxFit = Math.max(100, ...convergenceData.bests);
         const steps = convergenceData.bests.length;
         
-        // Draw axes
+        // Ejes X e Y
         ctx.strokeStyle = '#2A2A50';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(pad, pad); ctx.lineTo(pad, h - pad); ctx.lineTo(w - pad, h - pad);
+        ctx.moveTo(pad, pad - 20); ctx.lineTo(pad, h - pad); ctx.lineTo(w - pad + 20, h - pad);
         ctx.stroke();
+
+        // Texto Eje X
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '12px Courier New';
+        ctx.textAlign = 'center';
+        ctx.fillText('Generaciones', w / 2, h - pad + 40);
+        
+        // Texto Eje Y
+        ctx.save();
+        ctx.translate(pad - 40, h / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Fitness', 0, 0);
+        ctx.restore();
+
+        // Valores min/max
+        ctx.textAlign = 'right';
+        ctx.fillText('0', pad - 10, h - pad + 4);
+        ctx.fillText(Math.round(maxFit).toString(), pad - 10, pad + 4);
+        ctx.textAlign = 'center';
+        ctx.fillText(steps.toString(), w - pad, h - pad + 20);
 
         function plotLine(data, color) {
             ctx.strokeStyle = color;
@@ -151,8 +172,20 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
         }
 
-        plotLine(convergenceData.avgs, '#F59E0B'); // Warn (Average)
-        plotLine(convergenceData.bests, '#06D6A0'); // Highlight (Best)
+        plotLine(convergenceData.avgs, '#F59E0B');
+        plotLine(convergenceData.bests, '#06D6A0');
+
+        // Leyenda
+        ctx.fillStyle = '#06D6A0';
+        ctx.fillRect(pad + 20, pad, 12, 12);
+        ctx.fillStyle = '#E2E8F0';
+        ctx.textAlign = 'left';
+        ctx.fillText('Mejor Fitness', pad + 40, pad + 10);
+
+        ctx.fillStyle = '#F59E0B';
+        ctx.fillRect(pad + 160, pad, 12, 12);
+        ctx.fillStyle = '#E2E8F0';
+        ctx.fillText('Fitness Promedio', pad + 180, pad + 10);
     }
 
     function renderSchedule(schedule) {
