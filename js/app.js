@@ -129,49 +129,86 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (convergenceData.bests.length === 0) return;
         
-        const pad = 60;
+        const pad = 60; // Padding bottom/left
+        const topPad = 40; // Padding top
+        const rightPad = 40; // Padding right
+        const graphW = w - pad - rightPad;
+        const graphH = h - pad - topPad;
+        
         const maxFit = Math.max(100, ...convergenceData.bests);
         const steps = convergenceData.bests.length;
         
-        // Ejes X e Y
+        // Draw Grid and Ticks
+        ctx.lineWidth = 1;
+        ctx.font = '10px Courier New';
+        ctx.fillStyle = '#94A3B8';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+
+        // Y-axis grid (5 intervals)
+        const ySteps = 5;
+        for (let i = 0; i <= ySteps; i++) {
+            const val = (maxFit / ySteps) * i;
+            const y = h - pad - (i / ySteps) * graphH;
+            
+            ctx.strokeStyle = '#1A1A35';
+            ctx.beginPath();
+            ctx.moveTo(pad, y);
+            ctx.lineTo(w - rightPad, y);
+            ctx.stroke();
+            
+            ctx.fillText(Math.round(val).toString(), pad - 10, y);
+        }
+
+        // X-axis grid (5 intervals)
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const xSteps = 5;
+        for (let i = 0; i <= xSteps; i++) {
+            const val = (steps / xSteps) * i;
+            const x = pad + (i / xSteps) * graphW;
+            
+            ctx.strokeStyle = '#1A1A35';
+            ctx.beginPath();
+            ctx.moveTo(x, topPad);
+            ctx.lineTo(x, h - pad);
+            ctx.stroke();
+            
+            ctx.fillText(Math.round(val).toString(), x, h - pad + 10);
+        }
+
+        // Draw main axes
         ctx.strokeStyle = '#2A2A50';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(pad, pad - 20); ctx.lineTo(pad, h - pad); ctx.lineTo(w - pad + 20, h - pad);
+        ctx.moveTo(pad, topPad); ctx.lineTo(pad, h - pad); ctx.lineTo(w - rightPad, h - pad);
         ctx.stroke();
 
-        // Texto Eje X
-        ctx.fillStyle = '#94A3B8';
+        // Axis Titles
+        ctx.fillStyle = '#E2E8F0';
         ctx.font = '12px Courier New';
         ctx.textAlign = 'center';
-        ctx.fillText('Generaciones', w / 2, h - pad + 40);
+        ctx.fillText('Generaciones', pad + graphW / 2, h - pad + 35);
         
-        // Texto Eje Y
         ctx.save();
-        ctx.translate(pad - 40, h / 2);
+        ctx.translate(pad - 45, topPad + graphH / 2);
         ctx.rotate(-Math.PI / 2);
         ctx.fillText('Fitness', 0, 0);
         ctx.restore();
 
-        // Valores min/max
-        ctx.textAlign = 'right';
-        ctx.fillText('0', pad - 10, h - pad + 4);
-        ctx.fillText(Math.round(maxFit).toString(), pad - 10, pad + 4);
-        ctx.textAlign = 'center';
-        ctx.fillText(steps.toString(), w - pad, h - pad + 20);
-
+        // Plot lines
         function plotLine(data, color) {
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
             ctx.beginPath();
             if (steps === 1) {
-                const y = h - pad - (data[0] / maxFit) * (h - 2*pad);
+                const y = h - pad - (data[0] / maxFit) * graphH;
                 ctx.moveTo(pad, y);
-                ctx.lineTo(w - pad, y);
+                ctx.lineTo(w - rightPad, y);
             } else {
                 data.forEach((val, i) => {
-                    const x = pad + (i / (steps - 1)) * (w - 2*pad);
-                    const y = h - pad - (val / maxFit) * (h - 2*pad);
+                    const x = pad + (i / (steps - 1)) * graphW;
+                    const y = h - pad - (val / maxFit) * graphH;
                     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 });
             }
@@ -181,17 +218,19 @@ document.addEventListener('DOMContentLoaded', () => {
         plotLine(convergenceData.avgs, '#F59E0B');
         plotLine(convergenceData.bests, '#06D6A0');
 
-        // Leyenda
+        // Leyenda (fuera del área de la gráfica)
+        const legendY = 15;
         ctx.fillStyle = '#06D6A0';
-        ctx.fillRect(pad + 20, pad, 12, 12);
+        ctx.fillRect(pad, legendY, 12, 12);
         ctx.fillStyle = '#E2E8F0';
         ctx.textAlign = 'left';
-        ctx.fillText('Mejor Fitness', pad + 40, pad + 10);
+        ctx.textBaseline = 'top';
+        ctx.fillText('Mejor Fitness', pad + 20, legendY);
 
         ctx.fillStyle = '#F59E0B';
-        ctx.fillRect(pad + 160, pad, 12, 12);
+        ctx.fillRect(pad + 140, legendY, 12, 12);
         ctx.fillStyle = '#E2E8F0';
-        ctx.fillText('Fitness Promedio', pad + 180, pad + 10);
+        ctx.fillText('Fitness Promedio', pad + 160, legendY);
     }
 
     function renderSchedule(schedule) {
